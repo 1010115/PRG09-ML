@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 from sklearn.metrics import accuracy_score
 from sklearn.cluster import KMeans
+from sklearn.linear_model import LogisticRegression
 
 
 def extract_from_json_as_np_array(key, json_data):
@@ -79,14 +80,14 @@ for i, k_value in enumerate([5, 6, 4],1):
     plt.scatter(centers[:, 0], centers[:, 1], c='red', marker='X')
     plt.title(f"K-Means (k={k_value})")
 
-#print(kmeans)
 
-plt.show()
+#plt.show()
 
 # SUPERVISED LEARNING
 
 # haal data op voor classificatie
 classification_training = data.classification_training()
+
 
 # extract de data x = array met waarden, y = classificatie 0 of 1
 X = extract_from_json_as_np_array("x", classification_training)
@@ -95,14 +96,29 @@ X = extract_from_json_as_np_array("x", classification_training)
 Y = extract_from_json_as_np_array("y", classification_training)
 
 
+
 # TODO: leer de classificaties
+# print(X)
+
+x = X[:, 0]
+y = X[:, 1]
+plt.figure()
+plt.plot(x,y, 'k.') 
+plt.axis([min(x), max(x), min(y), max(y)])
+# plt.show()
+lnRegression = LogisticRegression().fit(X,Y)
+# print(lnRegression.predict(X))
+
+
 
 # TODO: voorspel na het trainen de Y-waarden (je gebruikt hiervoor dus niet meer de
 #       echte Y-waarden, maar enkel de X en je getrainde classifier) en noem deze
 #       bijvoordeeld Y_predict
+Y_predict = lnRegression.predict(X)
+
 
 # TODO: vergelijk Y_predict met de echte Y om te zien hoe goed je getraind hebt
-
+print(accuracy_score(Y,Y_predict))
 
 # haal data op om te testen
 classification_test = data.classification_test()
