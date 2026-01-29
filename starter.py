@@ -14,8 +14,8 @@ from machinelearningdata import Machine_Learning_Data
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
-import pandas as pd
 from sklearn.metrics import accuracy_score
+from sklearn.cluster import KMeans
 
 
 def extract_from_json_as_np_array(key, json_data):
@@ -44,34 +44,44 @@ kmeans_training = data.clustering_training()
 # extract de x waarden
 X = extract_from_json_as_np_array("x", kmeans_training)
 
-print(X)
+#print(X)
 
 # slice kolommen voor plotten
-# Gebruik de standaard [:, n] syntax voor 2D arrays
 x = X[:, 0]
 y = X[:, 1]
 
 # teken de punten
-# Vectorized plotting is much faster than a loop
-plt.plot(x, y, 'k.', markersize=2) 
-
+plt.plot(x,y, 'k.') 
 plt.axis([min(x), max(x), min(y), max(y)])
+
 #plt.show()
 
 # TODO: print deze punten uit en omcirkel de mogelijke clusters
 guess = np.array([[12,9],[60,65],[80,9],[83,30],[95,65]])
-guessX = guess[...,0]
-guessY = guess[...,1]
 
 ax = plt.gca()
 for center in guess:
-    circle = Circle(center, radius=5, ec="blue", fill=False, linewidth=2)
+    circle = Circle(center, radius=20, ec="blue", fill=False, linewidth=2)
     ax.add_patch(circle)
 
-plt.show()
+#plt.show()
 
 # TODO: ontdek de clusters mbv kmeans en teken een plot met kleurtjes
+plt.figure(figsize=(15, 5))
 
+for i, k_value in enumerate([5, 6, 4],1):
+    plt.subplot(1, 3, i)
+    kmeans = KMeans(n_clusters=k_value, n_init='auto').fit(X)
+    labels = kmeans.labels_
+    centers = kmeans.cluster_centers_
+
+    plt.scatter(x, y, c=labels, alpha=0.5)
+    plt.scatter(centers[:, 0], centers[:, 1], c='red', marker='X')
+    plt.title(f"K-Means (k={k_value})")
+
+#print(kmeans)
+
+plt.show()
 
 # SUPERVISED LEARNING
 

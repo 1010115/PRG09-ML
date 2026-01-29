@@ -74,7 +74,7 @@ if __name__ == '__main__':
     data = Machine_Learning_Data("1234567")
 
 
-    kmeans_training = data.kmeans_traing()
+    kmeans_training = data.clustering_training()
 
     for p in kmeans_training:
             print(p)
