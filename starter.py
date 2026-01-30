@@ -14,9 +14,10 @@ from machinelearningdata import Machine_Learning_Data
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, log_loss
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LogisticRegression
+from sklearn import tree
 
 
 def extract_from_json_as_np_array(key, json_data):
@@ -54,6 +55,7 @@ y = X[:, 1]
 # teken de punten
 plt.plot(x,y, 'k.') 
 plt.axis([min(x), max(x), min(y), max(y)])
+plt.title("Cluster guesses")
 
 #plt.show()
 
@@ -68,6 +70,7 @@ for center in guess:
 #plt.show()
 
 # TODO: ontdek de clusters mbv kmeans en teken een plot met kleurtjes
+
 plt.figure(figsize=(15, 5))
 
 for i, k_value in enumerate([5, 6, 4],1):
@@ -103,9 +106,12 @@ y= X[:,1]
 
 plt.figure()
 plt.scatter(x,y, c=Y) 
+plt.title("Plotted data")
 
 # plt.show()
 lnRegression = LogisticRegression().fit(X,Y)
+dTree = tree.DecisionTreeClassifier(criterion="gini",splitter="random",max_depth=5, min_samples_leaf=3).fit(X,Y)
+
 
 # Decision boundary
 coef = lnRegression.coef_[0]
@@ -115,19 +121,38 @@ line_y = -(coef[0] * line_x + intercept) / coef[1]
 
 plt.plot(line_x, line_y, color='red')
 
-
 # TODO: voorspel na het trainen de Y-waarden (je gebruikt hiervoor dus niet meer de
 #       echte Y-waarden, maar enkel de X en je getrainde classifier) en noem deze
 #       bijvoordeeld Y_predict
 plt.figure()
+plt.title("lnRegression train set ")
 Y_predict = lnRegression.predict(X)
 plt.scatter(x,y, c=Y_predict) 
 
 
+plt.figure()
+plt.title("Decision tree train set: Plot")
+Y2_predict = dTree.predict(X)
+plt.scatter(x,y, c=Y2_predict) 
+
+plt.figure()
+plt.title("Decision tree train set: Tree")
+tree.plot_tree(dTree)
 
 # TODO: vergelijk Y_predict met de echte Y om te zien hoe goed je getraind hebt
-print("Training accuracy "+ str(accuracy_score(Y,Y_predict)))
+Y_probs = lnRegression.predict_proba(X)
+loss = log_loss(Y,Y_probs)
+print("Log Regression")
+print(f"Training Confidence: {np.exp(-loss):.2%}")
+print(f"Training accuracy: {accuracy_score(Y,Y_predict):.2%}")
+
+Y2_probs = dTree.predict_proba(X)
+loss2 = log_loss(Y,Y2_probs)
+print("Decision Tree:")
+print(f"Training Confidence: {np.exp(-loss2):.2%}")
+print(f"Training accuracy: {accuracy_score(Y,Y2_predict):.2%}")
 # plt.show()
+
 
 # haal data op om te testen
 classification_test = data.classification_test()
@@ -140,14 +165,24 @@ X_test = extract_from_json_as_np_array("x", classification_test)
 #       vertelt hoeveel er goed waren.
 X_predict = lnRegression.predict(X_test)
 plt.figure()
+plt.title("lnRegression Test set")
 plt.scatter(X_test[:,0],X_test[:,1], c=X_predict) 
 plt.plot(line_x, line_y, color='red')
+
+X2_predict = dTree.predict(X_test)
+plt.figure()
+plt.title("Decision tree Test set")
+plt.scatter(X_test[:,0],X_test[:,1], c=X2_predict) 
 
 
 Z = X_predict
 
 # stuur je voorspelling naar de server om te kijken hoe goed je het gedaan hebt
 classification_test = data.classification_test(Z.tolist()) # tolist zorgt ervoor dat het numpy object uit de predict omgezet wordt naar een 'normale' lijst van 1'en en 0'en
-print("Classificatie accuratie (test): " + str(classification_test))
+print(f"Regression Classificatie accuratie (test): {float(classification_test):.2%}")
+
+Z = X2_predict
+classification_test = data.classification_test(Z.tolist())
+print(f"Decision Tree Classificatie accuratie (test): {float(classification_test):.2%}")
 
 plt.show()
