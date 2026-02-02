@@ -14,7 +14,8 @@ from machinelearningdata import Machine_Learning_Data
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
-from sklearn.metrics import accuracy_score, log_loss
+from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LogisticRegression
 from sklearn import tree
@@ -141,15 +142,15 @@ tree.plot_tree(dTree)
 
 # TODO: vergelijk Y_predict met de echte Y om te zien hoe goed je getraind hebt
 Y_probs = lnRegression.predict_proba(X)
-loss = log_loss(Y,Y_probs)
+report = classification_report(Y,Y_predict)
 print("Log Regression")
-print(f"Training Confidence: {np.exp(-loss):.2%}")
+print(report)
 print(f"Training accuracy: {accuracy_score(Y,Y_predict):.2%}")
 
 Y2_probs = dTree.predict_proba(X)
-loss2 = log_loss(Y,Y2_probs)
+report1 = classification_report(Y,Y2_predict)
 print("Decision Tree:")
-print(f"Training Confidence: {np.exp(-loss2):.2%}")
+print(report1)
 print(f"Training accuracy: {accuracy_score(Y,Y2_predict):.2%}")
 # plt.show()
 
@@ -179,10 +180,10 @@ Z = X_predict
 
 # stuur je voorspelling naar de server om te kijken hoe goed je het gedaan hebt
 classification_test = data.classification_test(Z.tolist()) # tolist zorgt ervoor dat het numpy object uit de predict omgezet wordt naar een 'normale' lijst van 1'en en 0'en
-print(f"Regression Classificatie accuratie (test): {float(classification_test):.2%}")
+print(f"Regression Classificatie accuratie (test): {classification_test}")
 
 Z = X2_predict
 classification_test = data.classification_test(Z.tolist())
-print(f"Decision Tree Classificatie accuratie (test): {float(classification_test):.2%}")
+print(f"Decision Tree Classificatie accuratie (test): {classification_test}")
 
 plt.show()
